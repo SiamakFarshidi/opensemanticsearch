@@ -59,7 +59,8 @@ INSTALLED_APPS = (
     'entity_rest_api',
     'import_export',
     'rest_framework',
-    'dataset_elastic'
+    'dataset_elastic',
+    'notebookSearch'
 )
 
 MIDDLEWARE = (

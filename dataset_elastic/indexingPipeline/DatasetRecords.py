@@ -39,8 +39,12 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 #----------------------------------------------------------------------------------------
-#nltk.download('wordnet')
-#nltk.download('stopwords')
+#nltk.data.path.append("/home/siamak/nltk_data")
+#nltk.data.path.append("/var/www/nltk_data")
+
+nltk.download('wordnet', download_dir='/var/www/nltk_data')
+nltk.download('stopwords', download_dir='/var/www/nltk_data')
+
 #----------------------------------------------------------------------------------------
 EnglishTerm = enchant.Dict("en_US")
 stop = set(stopwords.words('english'))
@@ -49,7 +53,7 @@ lemma = WordNetLemmatizer()
 Lda = gensim.models.ldamodel.LdaModel
 spacy_nlp  = spacy.load('en_core_web_md')
 #----------------------------------------------------------------------------------------
-cwd=os.getcwd()+"/dataset_elastic/indexingPipeline"
+cwd="/var/lib/opensemanticsearch/dataset_elastic/indexingPipeline"
 currentRun="Run 15/"
 MetaDataRecordPath=cwd+"/Metadata records/"
 ICOS__MetadataRecordsFileName="ICOS-metadata-records.json"
@@ -905,6 +909,8 @@ def datasetProcessing_SeaDataNet_CDI(datasetURL):
             result= pruneExtractedContextualInformation(result, originalValues)
         elif metadata_property=="url":
             result=datasetURL#[str(datasetURL)]
+        elif metadata_property=="name":
+            result=deep_search(["Data set name"],JSON)
         else:
             result=deep_search([metadata_property],JSON)
             if not len(result):
@@ -1458,3 +1464,4 @@ def deleteAllIndexFilesByExtension(extension):
 #invertedIndexing("SeaDataNet_EDMED_")
 #invertedIndexing("ICOS_")
 #--------------------
+#Run_indexingPipeline_SeaDataNet_CDI()

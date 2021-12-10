@@ -1,14 +1,16 @@
 import nltk
 from nltk.corpus import wordnet
+
 def download_nltk_dependencies_if_needed():
+    nltk.data.path.append("/var/www/nltk_data")
     try:
         nltk.word_tokenize('foobar')
     except LookupError:
-        nltk.download('punkt')
+        nltk.download('punkt', download_dir='/var/www/nltk_data')
     try:
         nltk.pos_tag(nltk.word_tokenize('foobar'))
     except LookupError:
-        nltk.download('averaged_perceptron_tagger')
+        nltk.download('averaged_perceptron_tagger', download_dir='/var/www/nltk_data')
 
 def get_some_word_synonyms(word):
     word = word.lower()

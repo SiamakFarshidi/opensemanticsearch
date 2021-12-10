@@ -28,5 +28,6 @@ urlpatterns = [
 	url(r'^morphology/', include(('morphology.urls', 'morphology'), namespace="morphology")),
 	url(r'^twitter/', include(('twitter.urls', 'twitter'), namespace="twitter")),
 	url(r'^DSS/', include(('InferenceEngine.urls', "InferenceEngine"), namespace="InferenceEngine")),  # home page
-	url(r'^dataset_elastic/', include(('dataset_elastic.urls', 'dataset_elastic'), namespace="dataset_elastic"))
+	url(r'^dataset_elastic/', include(('dataset_elastic.urls', 'dataset_elastic'), namespace="dataset_elastic")),
+	url(r'^notebookSearch/', include(('notebookSearch.urls', 'notebookSearch'), namespace="notebookSearch"))
 ]

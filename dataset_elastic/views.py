@@ -12,11 +12,44 @@ from elasticsearch_dsl.query import MatchAll
 from django.core import serializers
 from .indexingPipeline import DatasetRecords
 from .indexingPipeline import WebCrawler
+
 import json
-
 es = Elasticsearch("http://localhost:9200")
-#-------------------------------------------------------------------------------------------
 
+aggregares={
+    "ResearchInfrastructure":{
+        "terms":{
+            "field": "ResearchInfrastructure.keyword",
+            "size": 20,
+        }
+    },
+    "spatialCoverage":{
+        "terms":{
+            "field": "spatialCoverage.keyword",
+            "size": 20,
+        }
+    },
+    "theme":{
+        "terms":{
+            "field": "theme.keyword",
+            "size": 20,
+        }
+    },
+    "publisher":{
+        "terms":{
+            "field": "publisher.keyword",
+            "size": 20,
+        }
+    },
+    "measurementTechnique":{
+        "terms":{
+            "field": "measurementTechnique.keyword",
+            "size": 20,
+        }
+    },
+}
+
+#-------------------------------------------------------------------------------------------
 def indexingpipeline(request):
     print("indexing...")
     try:
@@ -39,7 +72,64 @@ def indexingpipeline(request):
 
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 #----------------------------------------------------------------------------------------
+def aggregates(request):
+    query_body = {
+        "size" : 0,
+        "query": {
+            "match_all": {}
+        },
+        "aggs":aggregares
+    }
+    result = es.search(index="envri", body=query_body)
+    print("Got %d Hits:" % result['hits']['total']['value'])
+    return JsonResponse(result, safe=True, json_dumps_params={'ensure_ascii': False})
+#----------------------------------------------------------------------------------------
+def genericsearch(request):
+    try:
+        term = request.GET['term']
+    except:
+        term = ''
 
+    try:
+        page = request.GET['page']
+    except:
+        page = 0
+
+    page=page*10
+    print(term)
+    result={}
+    if term=="*":
+        result = es.search(
+            index="envri",
+            body={
+                "from" : 0, "size" : 1000,
+                "query": {
+                    "match_all": {}
+                },
+                "aggs":aggregares
+            }
+        )
+    else:
+        user_request = "some_param"
+        query_body = {
+            "from" : 0, "size" : 1000,
+            "query": {
+                "multi_match" : {
+                    "query": term,
+                    "fields": [ "description", "keywords", "contact", "publisher", "citation",
+                                "genre", "creator", "headline", "abstract", "theme", "producer", "author",
+                                "sponsor", "provider", "name", "measurementTechnique", "maintainer", "editor",
+                                "copyrightHolder", "contributor", "contentLocation", "about", "rights", "useConstraints",
+                                "status", "scope", "metadataProfile", "metadataIdentifier", "distributionInfo", "dataQualityInfo",
+                                "contentInfo", "ResearchInfrastructure", "EssentialVariables", "potentialTopics"]
+                }
+            },
+            "aggs":aggregares
+        }
+        result = es.search(index="envri", body=query_body)
+    print("Got %d Hits:" % result['hits']['total']['value'])
+    return JsonResponse(result, safe=True, json_dumps_params={'ensure_ascii': False})
+#----------------------------------------------------------------------------------------
 def rest(request):
     try:
         term = request.GET['term']
@@ -93,29 +183,20 @@ def rest(request):
                      lat=lat, station=station.lower(), genre=genre.lower(), author=author.lower(),
                      distributor=distributor.lower(),
                      keywords=keywords.lower(), abstract=abstract.lower())
-
     return JsonResponse(result, safe=True, json_dumps_params={'ensure_ascii': False})
-
-
 # -------------------------------------------------------------------------
-
 def home(request):
     # index_elastic()
     context = {}
     # context['form'] = SelectionForm()
     # context['result'] = SelectionForm.fields
     return render(request, "home.html", context)
-
 #----------------------------------------------------------------------------------------
-
 def result(request):
     context = {}
     # context['result'] = SelectionForm()
     return render(request, "result.html")
-
-
 # -------------------------------------------------------------------------
-
 def search_index(request):
     results = []
     keywords_term = ""
@@ -170,12 +251,7 @@ def search_index(request):
     # print(results)
     context = {'results': results, 'count': len(results), 'search_term': search_term}
     return render(request, 'search.html', context)
-
-
 # ----------------------------------------------------------------
-
-# ----------------------------------------------------------------
-
 def esearch(keywords="",
             abstract="",
             all_fields="",
@@ -310,4 +386,3 @@ def get_results(response):
 
 # -------------------------------------------------------------
 
-# -------------------------------------------------------------

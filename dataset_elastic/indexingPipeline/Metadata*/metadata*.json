@@ -313,8 +313,8 @@
     "Text",
     "The name of the item.",
     "Rule",
-    "Data set name",
     "fileName",
+    "Data set name",
     "gmd:fileIdentifier",
     "gco:CharacterString",
     "scientificName",
@@ -613,7 +613,7 @@
   ],
   "environmentDescription": [
     "Text",
-    "description of the resource in the producer’s processing environment, including items such as the software, the computer operating system, file name, and size",
+    "description of the resource in the producer's processing environment, including items such as the software, the computer operating system, file name, and size",
     "Rule",
     "sample"
   ],
